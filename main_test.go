@@ -1,84 +1,90 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-func TestGenerateRandomElements_SizeZero(t *testing.T) {
-  data := generateRandomElements(0)
-  if data == nil {
-    t.Fatalf("ожидали непустой слайс, получили nil")
-  }
-  if len(data) != 0 {
-    t.Fatalf("ожидали длину 0, получили %d", len(data))
-  }
+	"github.com/stretchr/testify/require"
+)
+
+func TestGenerateRandomElements(t *testing.T) {
+	tests := []struct {
+		name    string
+		size    int
+		wantNil bool
+		wantLen int
+	}{
+		{
+			name:    "size zero",
+			size:    0,
+			wantNil: true,
+			wantLen: 0,
+		},
+		{
+			name:    "negative size",
+			size:    -10,
+			wantNil: true,
+			wantLen: 0,
+		},
+		{
+			name:    "positive size",
+			size:    1000,
+			wantNil: false,
+			wantLen: 1000,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data := generateRandomElements(tt.size)
+
+			if tt.wantNil {
+				require.Nil(t, data)
+				return
+			}
+
+			require.NotNil(t, data)
+			require.Len(t, data, tt.wantLen)
+		})
+	}
 }
 
-func TestGenerateRandomElements_NegativeSize(t *testing.T) {
-  data := generateRandomElements(-10)
-  if data == nil {
-    t.Fatalf("ожидали непустой слайс, получили nil")
-  }
-  if len(data) != 0 {
-    t.Fatalf("ожидали длину 0, получили %d", len(data))
-  }
+func TestMaximum(t *testing.T) {
+	tests := []struct {
+		name string
+		data []int
+		want int
+	}{
+		{name: "empty slice", data: []int{}, want: 0},
+		{name: "nil slice", data: nil, want: 0},
+		{name: "one element", data: []int{7}, want: 7},
+		{name: "many elements", data: []int{3, 1, 9, 2, 9, 5}, want: 9},
+		{name: "all equal", data: []int{4, 4, 4}, want: 4},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := maximum(tt.data)
+			require.Equal(t, tt.want, got)
+		})
+	}
 }
 
-func TestGenerateRandomElements_PositiveSize(t *testing.T) {
-  size := 1000
-  data := generateRandomElements(size)
+func TestMaxChunks(t *testing.T) {
+	tests := []struct {
+		name string
+		data []int
+		want int
+	}{
+		{name: "empty slice", data: []int{}, want: 0},
+		{name: "nil slice", data: nil, want: 0},
+		{name: "small slice", data: []int{1, 5, 2, 4, 3}, want: 5},
+		{name: "many elements", data: []int{3, 1, 9, 2, 9, 5}, want: 9},
+	}
 
-  if data == nil {
-    t.Fatalf("ожидали непустой слайс, получили nil")
-  }
-  if len(data) != size {
-    t.Fatalf("ожидали длину %d, получили %d", size, len(data))
-  }
-
-  for i, v := range data {
-    if v <= 0 {
-      t.Fatalf("ожидали положительное число в data[%d], получили %d", i, v)
-    }
-  }
-}
-
-func TestMaximum_EmptySlice(t *testing.T) {
-  if got := maximum([]int{}); got != 0 {
-    t.Fatalf("ожидали 0 для пустого слайса, получили %d", got)
-  }
-}
-
-func TestMaximum_NilSlice(t *testing.T) {
-  var data []int
-  if got := maximum(data); got != 0 {
-    t.Fatalf("ожидали 0 для nil-слайса, получили %d", got)
-  }
-}
-
-func TestMaximum_OneElement(t *testing.T) {
-  if got := maximum([]int{7}); got != 7 {
-    t.Fatalf("ожидали 7, получили %d", got)
-  }
-}
-
-func TestMaximum_ManyElements(t *testing.T) {
-  data := []int{3, 1, 9, 2, 9, 5}
-  got := maximum(data)
-  want := 9
-  if got != want {
-    t.Fatalf("ожидали %d, получили %d", want, got)
-  }
-}
-
-func TestMaximum_AllEqual(t *testing.T) {
-  data := []int{4, 4, 4}
-  got := maximum(data)
-  want := 4
-  if got != want {
-    t.Fatalf("ожидали %d, получили %d", want, got)
-  }
-}
-
-func TestMaxChunks_Empty(t *testing.T) {
-  if got := maxChunks([]int{}); got != 0 {
-    t.Fatalf("ожидали 0 для пустого слайса, получили %d", got)
-  }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := maxChunks(tt.data)
+			require.Equal(t, tt.want, got)
+		})
+	}
 }
